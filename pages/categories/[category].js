@@ -5,6 +5,7 @@ import { getSinglePage } from "@lib/contentParser";
 import { getTaxonomy } from "@lib/taxonomyParser";
 import { slugify } from "@lib/utils/textConverter";
 import Post from "@partials/Post";
+
 const { blog_folder } = config.settings;
 
 // category page
@@ -41,13 +42,16 @@ export default Category;
 
 // category page routes
 export const getStaticPaths = () => {
-  const allCategories = getTaxonomy(`content/${blog_folder}`, "categories");
+  const allCategories = getTaxonomy(`content/${blog_folder}`, "categories") || [];
 
-  const paths = allCategories.map((category) => ({
-    params: {
-      category: category,
-    },
-  }));
+  // Verifique se allCategories é um array
+  const paths = Array.isArray(allCategories)
+    ? allCategories.map((category) => ({
+        params: {
+          category: slugify(category),
+        },
+      }))
+    : [];
 
   return { paths, fallback: false };
 };
@@ -60,11 +64,11 @@ export const getStaticProps = ({ params }) => {
       slugify(category).includes(params.category)
     )
   );
-  const categories = getTaxonomy(`content/${blog_folder}`, "categories");
+  const categories = getTaxonomy(`content/${blog_folder}`, "categories") || [];
 
   const categoriesWithPostsCount = categories.map((category) => {
     const filteredPosts = posts.filter((post) =>
-      post.frontmatter.categories.map(e => slugify(e)).includes(category)
+      post.frontmatter.categories.map(e => slugify(e)).includes(slugify(category))
     );
     return {
       name: category,
