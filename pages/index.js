@@ -179,11 +179,12 @@ export default Home;
 
 export const getStaticProps = async () => {
   try {
+    // Recupera a página inicial
     const homepage = await getListPage("content/_index.md");
     const { frontmatter } = homepage;
     const { banner, featured_posts, recent_posts, promotion } = frontmatter;
 
-    // Fetch posts do WordPress
+    // Fetch dos posts do WordPress
     const { data } = await client.query({
       query: gql`
         query GetPosts {
@@ -209,37 +210,41 @@ export const getStaticProps = async () => {
       `,
     });
 
-    // Formatando os dados recebidos
+    // Formatando os dados recebidos para garantir que são serializáveis
     const posts = data.posts.edges.map(edge => ({
-      id: edge.node.id,
-      title: edge.node.title,
-      content: edge.node.content,
-      date: edge.node.date,
-      slug: edge.node.slug,
+      id: edge.node.id || '', // Garantindo que id seja string ou vazio
+      title: edge.node.title || 'Sem título', // Padrão se título estiver ausente
+      content: edge.node.content || '', // Evitar valores undefined ou null
+      date: edge.node.date || 'Data desconhecida', // Definindo um valor default
+      slug: edge.node.slug || '', 
       image: edge.node.featuredImage
         ? `https://head.agenciaplanner.dev/wp-content/uploads/${edge.node.featuredImage.node.mediaDetails.file}`
-        : null,
+        : null, // Usando null caso não haja imagem
     }));
 
+    // Busca de categorias
     const categories = await getTaxonomy(`content/${blog_folder}`, "categories");
 
+    // Retornando os dados de maneira segura
     return {
       props: {
-        banner,
-        featured_posts,
-        recent_posts,
-        promotion,
-        posts,
-        categories,
+        banner: banner || {}, // Garantindo que não seja undefined
+        featured_posts: featured_posts || [],
+        recent_posts: recent_posts || [],
+        promotion: promotion || {},
+        posts: posts || [],
+        categories: categories || [],
       },
     };
   } catch (error) {
     console.error("Error in getStaticProps:", error);
+    
+    // Retorna props com valores seguros para evitar falhas no build
     return {
       props: {
         banner: {},
-        featured_posts: {},
-        recent_posts: {},
+        featured_posts: [],
+        recent_posts: [],
         promotion: {},
         posts: [],
         categories: [],
