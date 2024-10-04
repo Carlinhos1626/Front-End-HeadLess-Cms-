@@ -1,10 +1,11 @@
+// pages/posts.js
 import config from "@config/config.json";
 import ImageFallback from "@layouts/components/ImageFallback";
 import dateFormat from "@lib/utils/dateFormat";
 import Link from "next/link";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { initializeApollo } from "../lib/apolloClient"; // Certifique-se de que este caminho esteja correto
 import { FaRegCalendar, FaUserAlt } from "react-icons/fa";
-
 
 const GET_POSTS = gql`
   query GetPosts {
@@ -34,25 +35,17 @@ const GET_POSTS = gql`
   }
 `;
 
-
-
-const Post = () => {
+const Post = ({ posts }) => {
   const { summary_length, blog_folder } = config.settings;
   const { meta_author } = config.metadata;
 
-  // Use Apollo Client para buscar o primeiro post
-  const { loading, error, data } = useQuery(GET_POSTS);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
   // Verifica se há posts retornados
-  if (data.posts.edges.length === 0) {
+  if (!posts || posts.length === 0) {
     return <p>No posts available.</p>;
   }
 
   // Trabalha apenas com o primeiro post retornado
-  const node = data.posts.edges[0].node;
+  const node = posts[0].node;
   const author = node.author?.node?.name || meta_author;
 
   // Formatação do caminho completo da imagem
@@ -110,5 +103,22 @@ const Post = () => {
     </div>
   );
 };
+
+export async function getStaticProps() {
+  const apolloClient = initializeApollo(); // Inicializa o cliente Apollo
+
+  // Busca os posts
+  const { data } = await apolloClient.query({
+    query: GET_POSTS,
+  });
+
+  const posts = data.posts.edges; // Extraí os posts
+
+  return {
+    props: {
+      posts, // Retorna posts que são serializáveis
+    },
+  };
+}
 
 export default Post;
