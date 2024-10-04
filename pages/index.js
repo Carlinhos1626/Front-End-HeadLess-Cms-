@@ -182,7 +182,12 @@ export const getStaticProps = async () => {
     // Recupera a página inicial
     const homepage = await getListPage("content/_index.md");
     const { frontmatter } = homepage;
-    const { banner, featured_posts, recent_posts, promotion } = frontmatter;
+    const {
+      banner = {}, // valor padrão
+      featured_posts = [], // valor padrão
+      recent_posts = [], // valor padrão
+      promotion = {}, // valor padrão
+    } = frontmatter;
 
     // Fetch dos posts do WordPress
     const { data } = await client.query({
@@ -212,11 +217,11 @@ export const getStaticProps = async () => {
 
     // Formatando os dados recebidos para garantir que são serializáveis
     const posts = data.posts.edges.map(edge => ({
-      id: edge.node.id || '',
-      title: edge.node.title || 'Sem título',
-      content: edge.node.content || '',
-      date: edge.node.date || 'Data desconhecida',
-      slug: edge.node.slug || '', 
+      id: edge.node.id || '', // valor padrão
+      title: edge.node.title || 'Sem título', // valor padrão
+      content: edge.node.content || '', // valor padrão
+      date: edge.node.date || 'Data desconhecida', // valor padrão
+      slug: edge.node.slug || '', // valor padrão
       image: edge.node.featuredImage?.node?.mediaDetails?.file
         ? `https://head.agenciaplanner.dev/wp-content/uploads/${edge.node.featuredImage.node.mediaDetails.file}`
         : null,
@@ -224,21 +229,24 @@ export const getStaticProps = async () => {
 
     // Busca de categorias
     const categories = await getTaxonomy(`content/${blog_folder}`, "categories");
+    
+    // Verifique se `categories` é serializável
+    const formattedCategories = Array.isArray(categories) ? categories : [];
 
     // Retornando os dados de maneira segura
     return {
       props: {
-        banner: banner || {},
-        featured_posts: featured_posts || [],
-        recent_posts: recent_posts || [],
-        promotion: promotion || {},
+        banner,
+        featured_posts,
+        recent_posts,
+        promotion,
         posts,
-        categories: categories || [],
+        categories: formattedCategories,
       },
     };
   } catch (error) {
     console.error("Error in getStaticProps:", error);
-    
+
     // Retorna props com valores seguros para evitar falhas no build
     return {
       props: {
