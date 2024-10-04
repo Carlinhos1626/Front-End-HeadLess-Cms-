@@ -212,14 +212,14 @@ export const getStaticProps = async () => {
 
     // Formatando os dados recebidos para garantir que são serializáveis
     const posts = data.posts.edges.map(edge => ({
-      id: edge.node.id || '', // Garantindo que id seja string ou vazio
-      title: edge.node.title || 'Sem título', // Padrão se título estiver ausente
-      content: edge.node.content || '', // Evitar valores undefined ou null
-      date: edge.node.date || 'Data desconhecida', // Definindo um valor default
+      id: edge.node.id || '',
+      title: edge.node.title || 'Sem título',
+      content: edge.node.content || '',
+      date: edge.node.date || 'Data desconhecida',
       slug: edge.node.slug || '', 
-      image: edge.node.featuredImage
+      image: edge.node.featuredImage?.node?.mediaDetails?.file
         ? `https://head.agenciaplanner.dev/wp-content/uploads/${edge.node.featuredImage.node.mediaDetails.file}`
-        : null, // Usando null caso não haja imagem
+        : null,
     }));
 
     // Busca de categorias
@@ -228,11 +228,11 @@ export const getStaticProps = async () => {
     // Retornando os dados de maneira segura
     return {
       props: {
-        banner: banner || {}, // Garantindo que não seja undefined
+        banner: banner || {},
         featured_posts: featured_posts || [],
         recent_posts: recent_posts || [],
         promotion: promotion || {},
-        posts: posts || [],
+        posts,
         categories: categories || [],
       },
     };
