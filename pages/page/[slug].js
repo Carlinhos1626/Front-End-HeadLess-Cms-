@@ -5,6 +5,7 @@ import { getListPage, getSinglePage } from "@lib/contentParser";
 import { markdownify } from "@lib/utils/textConverter";
 import { sortByDate } from "@lib/utils/sortFunctions";
 import Post from "@partials/Post";
+
 const { blog_folder, summary_length } = config.settings;
 
 // blog pagination
@@ -40,23 +41,26 @@ export default BlogPagination;
 
 // get blog pagination slug
 export const getStaticPaths = () => {
-  const getAllSlug = getSinglePage(`content/${blog_folder}`);
-  const allSlug = getAllSlug.map((item) => item.slug);
+  const getAllSlug = getSinglePage(`content/${blog_folder}`) || [];
+
+  // Verifique se getAllSlug é um array antes de usar map
+  const allSlug = Array.isArray(getAllSlug) ? getAllSlug.map((item) => item.slug) : [];
   const { pagination } = config.settings;
   const totalPages = Math.ceil(allSlug.length / pagination);
   let paths = [];
 
-  for (let i = 1; i < totalPages; i++) {
+  // Ajuste o loop para começar em 0 e incluir a última página
+  for (let i = 1; i <= totalPages; i++) {
     paths.push({
       params: {
-        slug: (i + 1).toString(),
+        slug: i.toString(),
       },
     });
   }
 
   return {
     paths,
-    fallback: false,
+    fallback: false, // ou true se quiser habilitar fallback dinâmico
   };
 };
 
@@ -64,7 +68,7 @@ export const getStaticPaths = () => {
 export const getStaticProps = async ({ params }) => {
   const currentPage = parseInt((params && params.slug) || 1);
   const { pagination } = config.settings;
-  const posts = getSinglePage(`content/${blog_folder}`);
+  const posts = getSinglePage(`content/${blog_folder}`) || [];
   const postIndex = await getListPage(`content/${blog_folder}/_index.md`);
 
   return {
