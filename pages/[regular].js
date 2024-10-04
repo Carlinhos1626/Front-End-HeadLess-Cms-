@@ -36,12 +36,17 @@ export default RegularPages;
 
 // for regular page routes
 export const getStaticPaths = async () => {
-  const slugs = getSinglePage("content");
-  const paths = slugs.map((item) => ({
-    params: {
-      regular: item.slug,
-    },
-  }));
+  // Garantindo que 'slugs' seja um array ou vazio por padrão
+  const slugs = getSinglePage("content") || [];
+
+  // Certificando-se de que 'slugs' é um array antes de usar .map
+  const paths = Array.isArray(slugs)
+    ? slugs.map((item) => ({
+        params: {
+          regular: item.slug,
+        },
+      }))
+    : [];
 
   return {
     paths,
@@ -53,6 +58,7 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async ({ params }) => {
   const { regular } = params;
   const allPages = await getRegularPage(regular);
+
   return {
     props: {
       slug: regular,
