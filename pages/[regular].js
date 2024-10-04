@@ -3,7 +3,7 @@ import About from "@layouts/About";
 import Base from "@layouts/Baseof";
 import Contact from "@layouts/Contact";
 import Default from "@layouts/Default";
-import { getRegularPage, getSinglePage } from "@lib/contentParser";
+import { getRegularPage, getSinglePage } from "@alib/contentParser";
 
 // for all regular pages
 const RegularPages = ({ data }) => {

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FaRegCalendar } from "react-icons/fa";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
+
 const { blog_folder } = config.settings;
 const { about, featured_posts, newsletter } = config.widgets;
 
@@ -91,17 +92,13 @@ const Sidebar = ({ posts, categories, className }) => {
           <h4 className="section-title mb-12 text-center">Featured</h4>
           <div className="mb-12 flex items-center justify-center">
             <button
-              className={`btn px-5 py-2 ${
-                showRecent ? "btn-outline-primary" : "btn-primary"
-              }`}
+              className={`btn px-5 py-2 ${showRecent ? "btn-outline-primary" : "btn-primary"}`}
               onClick={() => setShowRecent(false)}
             >
               Featured
             </button>
             <button
-              className={`btn ml-3  px-5 py-2 ${
-                showRecent ? "btn-primary" : "btn-outline-primary"
-              }`}
+              className={`btn ml-3  px-5 py-2 ${showRecent ? "btn-primary" : "btn-outline-primary"}`}
               onClick={() => setShowRecent(true)}
             >
               Recent
@@ -118,15 +115,15 @@ const Sidebar = ({ posts, categories, className }) => {
                     }`}
                     key={`key-${i}`}
                   >
-                   {post.frontmatter?.image && (
-                        <ImageFallback
-                          className="mr-3 h-[85px] w-[85px] rounded-full object-cover"
-                          src={post.frontmatter.image}
-                          alt={post.frontmatter.title}
-                          width={105}
-                          height={85}
-                        />
-                      )}
+                    {post.frontmatter?.image && (
+                      <ImageFallback
+                        className="mr-3 h-[85px] w-[85px] rounded-full object-cover"
+                        src={post.frontmatter.image}
+                        alt={post.frontmatter.title}
+                        width={105}
+                        height={85}
+                      />
+                    )}
                     <div>
                       <h3 className="h5 mb-2">
                         <Link
@@ -182,12 +179,12 @@ const Sidebar = ({ posts, categories, className }) => {
       )}
 
       {/* newsletter */}
-      {newsletter.enable && (
-        <div className="mt-6  rounded border border-border p-6 text-center dark:border-darkmode-border">
+      {newsletter.enable && newsletter.malichip_url && ( // Adicione esta verificação
+        <div className="mt-6 rounded border border-border p-6 text-center dark:border-darkmode-border">
           <h4 className="section-title">{newsletter.title}</h4>
           <p className="mt-10 text-xs">{newsletter.content}</p>
           <MailchimpSubscribe
-            url={newsletter.malichip_url}
+            url={newsletter.malichip_url} // Certifique-se de que esta propriedade está correta
             render={({ subscribe, status, message }) => (
               <CustomForm
                 onValidated={(formData) => subscribe(formData)}
@@ -197,7 +194,7 @@ const Sidebar = ({ posts, categories, className }) => {
             )}
           />
           <p className="text-xs">
-            By Singing Up, You Agree To
+            By Signing Up, You Agree To
             <Link
               href={newsletter.privacy_policy_page}
               className="ml-1 text-primary"
