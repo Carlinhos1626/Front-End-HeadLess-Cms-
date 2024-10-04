@@ -4,7 +4,7 @@ import ImageFallback from "@layouts/components/ImageFallback";
 import dateFormat from "@lib/utils/dateFormat";
 import Link from "next/link";
 import { gql } from "@apollo/client";
-import { initializeApollo } from "../lib/apollo-client"; // Certifique-se de que este caminho esteja correto
+import { initializeApollo } from "../../lib/apollo-client"; // Certifique-se de que este caminho esteja correto
 import { FaRegCalendar, FaUserAlt } from "react-icons/fa";
 
 const GET_POSTS = gql`
